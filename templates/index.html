@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Score Predictor</title>
+
+    <!-- Connect CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<body>
+
+<div class="container">
+    <h1>Score Predictor</h1>
+
+    <form action="/predict" method="post">
+        <input type="text" name="hours" placeholder="Enter study hours" required>
+        <input type="text" name="attendence" placeholder="Enter your attendance" required>
+        <input type="text" name="previous" placeholder="Enter previous grades" required>
+        <button type="submit">Predict</button>
+    </form>
+
+    <h3>{{ prediction_text }}</h3>
+</div>
+
+</body>
+</html>
