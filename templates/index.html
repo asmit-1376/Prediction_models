@@ -1,26 +1,266 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Score Predictor</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Score Predictor — AI Marks Engine</title>
+  <meta name="description" content="Predict your academic score instantly using AI. Enter your study hours, attendance, and previous grades to get a personalised marks prediction." />
 
-    <!-- Connect CSS -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
 </head>
 
 <body>
 
-<div class="container">
-    <h1>Score Predictor</h1>
+  <!-- Ambient glow orbs -->
+  <div class="orb orb-1" aria-hidden="true"></div>
+  <div class="orb orb-2" aria-hidden="true"></div>
 
-    <form action="/predict" method="post">
-        <input type="text" name="hours" placeholder="Enter study hours" required>
-        <input type="text" name="attendence" placeholder="Enter your attendance" required>
-        <input type="text" name="previous" placeholder="Enter previous grades" required>
-        <button type="submit">Predict</button>
+  <!-- Main card -->
+  <div class="container" id="main-card" role="main">
+
+    <!-- Header -->
+    <div class="header">
+      <div class="badge" id="badge">
+        <span class="badge-dot"></span>
+        AI Powered
+      </div>
+      <h1 id="headline">Score Predictor</h1>
+      <p class="subtitle" id="subline">Enter your details and let the model do the rest.</p>
+    </div>
+
+    <!-- Form -->
+    <form action="/predict" method="post" id="predict-form" novalidate>
+
+      <div class="form-group reveal" id="fg-hours">
+        <label for="hours">Study Hours / day</label>
+        <input
+          type="text"
+          id="hours"
+          name="hours"
+          placeholder="e.g. 6"
+          autocomplete="off"
+          required
+        />
+      </div>
+
+      <div class="form-group reveal" id="fg-attendance">
+        <label for="attendence">Attendance %</label>
+        <input
+          type="text"
+          id="attendence"
+          name="attendence"
+          placeholder="e.g. 85"
+          autocomplete="off"
+          required
+        />
+      </div>
+
+      <div class="form-group reveal" id="fg-previous">
+        <label for="previous">Previous Grade</label>
+        <input
+          type="text"
+          id="previous"
+          name="previous"
+          placeholder="e.g. 78"
+          autocomplete="off"
+          required
+        />
+      </div>
+
+      <div class="btn-wrap reveal" id="btn-wrap">
+        <button type="submit" id="predict-btn">
+          <span class="btn-inner">
+            <span class="btn-text">Predict My Score</span>
+            <span class="btn-spinner" aria-hidden="true"></span>
+          </span>
+        </button>
+      </div>
+
     </form>
 
-    <h3>{{ prediction_text }}</h3>
-</div>
+    <!-- Result -->
+    {% if prediction_text %}
+    <div class="divider"></div>
+    <div class="result-block visible" id="result-block">
+      <div class="result-label">Predicted Score</div>
+      <div class="result-value" id="result-value">{{ prediction_text }}</div>
+    </div>
+    {% else %}
+    <div class="divider" id="divider" style="display:none"></div>
+    <div class="result-block" id="result-block">
+      <div class="result-label">Predicted Score</div>
+      <div class="result-value" id="result-value"></div>
+    </div>
+    {% endif %}
+
+  </div>
+
+  <!-- ─── GSAP CDN ───────────────────────────────────────────── -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+  <!-- ─── Animation Script ─────────────────────────────────── -->
+  <script>
+    /* ── Particle System ──────────────────────────────────── */
+    (function spawnParticles() {
+      const count = 22;
+      for (let i = 0; i < count; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = Math.random() * 3 + 1;
+        p.style.cssText = `
+          width:${size}px;
+          height:${size}px;
+          left:${Math.random() * 100}vw;
+          top:${Math.random() * 100}vh;
+          background:rgba(${Math.random() > 0.5 ? '124,110,247' : '56,189,248'},${(Math.random() * 0.3 + 0.1).toFixed(2)});
+        `;
+        document.body.appendChild(p);
+
+        gsap.to(p, {
+          y: -(Math.random() * 200 + 100),
+          x: (Math.random() - 0.5) * 120,
+          opacity: 0,
+          duration: Math.random() * 8 + 6,
+          ease: 'power1.out',
+          repeat: -1,
+          delay: Math.random() * 6,
+          onRepeat() {
+            gsap.set(p, {
+              left: Math.random() * 100 + 'vw',
+              top: Math.random() * 100 + 'vh',
+              opacity: (Math.random() * 0.4 + 0.1)
+            });
+          }
+        });
+      }
+    })();
+
+    /* ── Master entrance timeline ─────────────────────────── */
+    const tl = gsap.timeline({ defaults: { ease: 'expo.out' } });
+
+    // Card slides up and fades in
+    tl.to('#main-card', {
+      opacity: 1,
+      y: 0,
+      duration: 1,
+    })
+
+    // Badge bounces in
+    .from('#badge', {
+      opacity: 0,
+      y: -12,
+      scale: 0.85,
+      duration: 0.55,
+    }, '-=0.55')
+
+    // Headline word-by-word split
+    .from('#headline', {
+      opacity: 0,
+      y: 20,
+      duration: 0.6,
+    }, '-=0.3')
+
+    // Subtitle
+    .from('#subline', {
+      opacity: 0,
+      y: 12,
+      duration: 0.5,
+    }, '-=0.4')
+
+    // Form groups stagger
+    .to('.reveal', {
+      opacity: 1,
+      y: 0,
+      duration: 0.55,
+      stagger: 0.1,
+    }, '-=0.3');
+
+    /* ── Orb parallax on mouse move ───────────────────────── */
+    document.addEventListener('mousemove', (e) => {
+      const xFrac = (e.clientX / window.innerWidth - 0.5);
+      const yFrac = (e.clientY / window.innerHeight - 0.5);
+
+      gsap.to('.orb-1', {
+        x: xFrac * 40,
+        y: yFrac * 40,
+        duration: 1.8,
+        ease: 'power2.out',
+      });
+      gsap.to('.orb-2', {
+        x: -xFrac * 30,
+        y: -yFrac * 30,
+        duration: 1.8,
+        ease: 'power2.out',
+      });
+    });
+
+    /* ── Input focus micro-animations ─────────────────────── */
+    document.querySelectorAll('input').forEach(input => {
+      input.addEventListener('focus', () => {
+        gsap.to(input, { scale: 1.012, duration: 0.25, ease: 'power2.out' });
+      });
+      input.addEventListener('blur', () => {
+        gsap.to(input, { scale: 1, duration: 0.25, ease: 'power2.out' });
+      });
+    });
+
+    /* ── Button submit animation ──────────────────────────── */
+    const form = document.getElementById('predict-form');
+    const btn  = document.getElementById('predict-btn');
+
+    form.addEventListener('submit', (e) => {
+      // Quick button press animation, then allow form to submit
+      btn.classList.add('loading');
+      gsap.to(btn, { scale: 0.97, duration: 0.12, yoyo: true, repeat: 1 });
+    });
+
+    /* ── Animate result if present on page load ───────────── */
+    const resultBlock = document.getElementById('result-block');
+    if (resultBlock && resultBlock.classList.contains('visible')) {
+      // Show divider
+      const divider = document.querySelector('.divider');
+      if (divider) divider.style.display = 'block';
+
+      gsap.from(resultBlock, {
+        opacity: 0,
+        y: 20,
+        scale: 0.96,
+        duration: 0.7,
+        delay: 1.2,
+        ease: 'back.out(1.5)',
+      });
+
+      /* ── Count-up number animation ─────────────────────── */
+      const valEl = document.getElementById('result-value');
+      const rawText = valEl.textContent.trim();
+      // Extract numeric value if present
+      const numMatch = rawText.match(/[\d.]+/);
+      if (numMatch) {
+        const target = parseFloat(numMatch[0]);
+        const prefix = rawText.slice(0, rawText.indexOf(numMatch[0]));
+        const suffix = rawText.slice(rawText.indexOf(numMatch[0]) + numMatch[0].length);
+        const counter = { val: 0 };
+
+        gsap.to(counter, {
+          val: target,
+          duration: 1.4,
+          delay: 1.4,
+          ease: 'power3.out',
+          onUpdate() {
+            valEl.textContent = prefix + counter.val.toFixed(
+              numMatch[0].includes('.') ? 2 : 0
+            ) + suffix;
+          }
+        });
+      }
+    }
+  </script>
 
 </body>
 </html>
